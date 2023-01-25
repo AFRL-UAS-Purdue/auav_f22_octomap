@@ -1,0 +1,81 @@
+How to install octomap on onboard container:
+
+1. sudo apt-get install ros-foxy-octomap
+2. git clone https://github.com/iKrishneel/octomap_server2.git
+3. cd octomap_server2
+4. vcs import . < deps.repos
+5. cd ..
+6. colcon build --symlink-install --packages-select octomap_msgs octomap_server2
+6. colcon build --symlink-install --packages-select octomap_msgs pcl_conversions (REPLACE STUFF WITH ACTUAL NAMES)
+6. sudo apt install build-essential libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-test-dev
+7. sudo apt install libpcl-dev
+
+$sudo apt-get update
+$sudo apt-get install ros-foxy-pcl-conversions
+$sudo apt-get install ros-foxy-pcl-ros
+
+sudo apt-get install ros-foxy-octomap ros-foxy-octomap-mapping
+
+rosdep install octomap_mapping
+rosmake octomap_mapping
+
+colcon build
+
+8. colcon build --symlink-install --packages-select octomap_msgs octomap_server2
+
+colcon build
+
+
+-------------------------------
+NEW INSTRUCTIONS:
+
+nvidia-smi -pm 1
+
+1. Copy over new dependencies from backup Dockerfile
+2. docker compose build
+3. docker compose up
+4. split onboard terminator and click into new terminal
+5. Install octomap_server2 and setup some stuff
+git clone https://github.com/iKrishneel/octomap_server2.git
+cd octomap_server2
+vcs import . < deps.repos
+cd ..
+rosdep update
+sudo apt-get install ros-foxy-octomap-mapping -y
+colcon build
+
+source install/setup.bash && ros2 launch octomap_server2 octomap_server_launch.py
+
+
+In sim split terminal:
+
+DOES NOT WORK
+sudo apt-get install --fix-missing ros-foxy-gazebo-ros-pkgs -y
+DOES NOT WORK
+
+# Install gazebo_ros_pkgs!
+RUN sudo apt install git -y
+RUN mkdir -p ~/ws/src
+RUN cd ~/ws
+RUN sudo apt install wget -y
+RUN wget https://raw.githubusercontent.com/ros-simulation/gazebo_ros_pkgs/ros2/gazebo_ros_pkgs.repos
+RUN cd ~/ws
+# Following has some issues. Recommend using custon .repos file instead
+RUN vcs import src < gazebo_ros_pkgs.repos
+RUN vcs custom --args checkout foxy
+RUN rosdep update
+RUN cd ~/ws
+RUN rosdep install --from-paths src --ignore-src -r -y
+RUN cd ~/ws
+RUN colcon build --symlink-install
+
+
+
+
+
+
+# In one split terminal
+source install/setup.bash && ros2 launch octomap_server2 octomap_server_launch.py
+
+# In another split terminal
+ros2 run tf2_ros static_transform_publisher "0" "0" "0" "0" "0" "0" "map" "drone/base_link/realsense_d435"
